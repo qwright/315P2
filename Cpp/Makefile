@@ -1,2 +1,2 @@
 main: main.cpp
-	g++ -o main main.cpp
+	g++ -pthread -o main main.cpp
