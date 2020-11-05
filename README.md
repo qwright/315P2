@@ -9,3 +9,7 @@ Two implementations of a multi-threaded request scheduler in C++ and Java
 To run, clone this repository and navigate to '/Cpp'
 
 Then, run `make` and finally `./main`
+
+Note: No exit condition works right now: to quit the program use `ctrl+c`
+
+
