@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <mutex>
+#include <ctime>
 #include <condition_variable>
 
 using namespace std;
@@ -43,16 +44,24 @@ private:
 class Request
 {
 	int request_ID;
+	public:
 	int length = rand() % 10 +1; //random length 1-10s
-	Request(int r){
-		request_ID = r;
-	}
+	Request(int r);
+	int getID();
 };
 
+Request::Request(int r){
+		request_ID = r;
+}
+
+int Request::getID(){
+	return request_ID;
+}
+
 //sleep a thread for a random amount of time
-void sleep_thread()
+void sleep_master()
 {
-	sleep(rand() % 3 +1); // sleep randomly for 1-3s
+	sleep(rand() % 5 + 1); // sleep randomly for 1-5s
 }
 
 void *thread_routine(void *id)
@@ -68,7 +77,7 @@ int main()
 	cout << "Input amount of Slave threads: ";
 	cin >> N;
 
-	queue<int> request_queue; //request queue
+	queue<Request> request_queue; //request queue
 	int ID[N]; //thread ids
 	pthread_t threads[N]; //threads
 	
@@ -76,6 +85,28 @@ int main()
 	for(int i=0; i < N; i++){
 		ID[i] = pthread_create(&threads[i], NULL, thread_routine, (void*)i);
 	}
+	
+	int count = 0;
+	time_t curr_time;
+	//generate requests
+	while(true){
+		Request next_request(count);
+		curr_time = time(0);
+		cout << "Producer: New request ID: " << next_request.getID() << ", L= " << next_request.length << "(" << ctime(&curr_time) << ")" << endl;
+		request_queue.push(next_request);
+		//sleep
+		sleep_master();
+		count++;
+	}
 
 	return 0;
 }
+
+
+
+
+
+
+
+
+
