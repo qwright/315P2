@@ -27,7 +27,7 @@ public class main {
 		long curr_time = System.currentTimeMillis();
 		
 		//generate requests
-		while(true) { //not sure about true
+		while(true) { 
 			if(request_queue.size() != 5) { //arbitrary thread size
 				Request next_request = new Request(count);
 				System.out.println("Producer: New request ID: " + next_request.getID() 
