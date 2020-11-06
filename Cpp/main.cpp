@@ -60,7 +60,7 @@ int Request::getID(){
 
 //global variables (shared between threads)
 
-Semaphore S(3); //can we get this constructed more dynamically?
+Semaphore S(1); //can we get this constructed more dynamically?
 queue<Request> request_queue; //request queue
 
 //sleep a thread for a random amount of time
@@ -79,10 +79,12 @@ void *thread_routine(void *id)
 			Request top = request_queue.front();
 			request_queue.pop();
 			cout << "Consumer " << (long)id << ": assigned Req: " << top.getID() << " for " << top.length << "s" << endl;
+			S.notify((long)id);
 			sleep(top.length);
 			cout << "Consumer " << long(id) << ": completed Req: " << top.getID() << endl;
+		}else{
+			S.notify((long)id);
 		}
-		S.notify((long)id);
 	}	
 
 	//pthread_exit(NULL);//kill - debug
@@ -107,13 +109,15 @@ int main()
 	time_t curr_time;
 	//generate requests
 	while(true){
-		Request next_request(count);
-		curr_time = time(0);
-		cout << "Producer: New request ID: " << next_request.getID() << ", L= " << next_request.length << "time:" << ctime(&curr_time) << endl;
-		request_queue.push(next_request);
+		if(request_queue.size() != 5){ //arbitrary size for thread
+			Request next_request(count);
+			curr_time = time(0);
+			cout << "Producer: New request ID: " << next_request.getID() << ", L= " << next_request.length << " time:" << ctime(&curr_time) << endl;
+			request_queue.push(next_request);
+			count++;
+		}
 		//sleep
 		sleep_master();
-		count++;
 	}
 
 	return 0;
