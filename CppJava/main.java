@@ -13,33 +13,29 @@ public class main{
 		System.out.println("Input amount of Slave threads: ");
 		N = in.nextInt();
 		int ID[] = new int[N];
-		myThread threads[] = new myThread[N];
+		sThread threads[] = new sThread[N];
+		
+		
 		
 		for(int i = 0; i<N; i++) {
 			ID[i] = i;
 		}
 		//generate slaves
 		for (int id : ID){
-			threads[id] = new myThread(request_queue.front());
+			threads[id] = new sThread(request_queue.front());
 			threads[id].thread_routine(id, request_queue);
 			//sleep
 			sleep_master();
 		}
-		
+		int max;
+		System.out.println("Intput number of jobs done: ");
+		max = in.nextInt();
+		mThread master = new mThread(max);
 		int count = 0;
-		long curr_time = System.currentTimeMillis();
 		
 		//generate requests
-		//generate requests
-        while(true) { //not sure about true
-            if(request_queue.size() != 5) { //arbitrary thread size
-                int rlength = (int)(1+Math.random()*10); // random length between 1-10s
-                Request next_request = new Request(count, rlength);
-                System.out.println("Producer: New request ID: " + next_request.getID() 
-                    + ", L= "+next_request.getLength()+ "time: " + curr_time);
-                request_queue.push(next_request);
-                count++;
-            }
+        while(count<max) { 
+            master.generateThreads(request_queue, count);
         }
      }
 	
@@ -105,9 +101,9 @@ class MyQueue{
 	}   
 }
 
-class myThread implements Runnable{
+class sThread implements Runnable{
 	private Request re;
-	public myThread(Request re) {
+	public sThread(Request re) {
 		this.re = re;
 	}
 	public static void thread_routine(int id, MyQueue request_queue) throws InterruptedException{
@@ -122,11 +118,8 @@ class myThread implements Runnable{
 				//S.notify(id);
 				Thread.sleep(top.getLength());
 				System.out.println("Consumer " + id + ": completed Req: " + top.getID());
-			}
-			//TODO: implement notify for monitor
-			
+			}	
 		}
-		//pthread_exit(NULL); //kill
 	}
 	@Override
 	public void run() {
@@ -134,5 +127,27 @@ class myThread implements Runnable{
 		
 	}
 
+	
+}
+
+class mThread {
+	
+	private int max;
+	
+	public mThread(int max) {
+		this.max = max;
+	}
+	
+	void generateThreads(MyQueue q, int count) {
+		long curr_time = System.currentTimeMillis();
+		if(q.size() != 5) { //arbitrary thread size
+            int rlength = (int)(1+Math.random()*10); // random length between 1-10s
+            Request next_request = new Request(count, rlength);
+            System.out.println("Producer: New request ID: " + next_request.getID() 
+                + ", L= "+next_request.getLength()+ "time: " + curr_time);
+            q.push(next_request);
+            count++;
+        }
+	}
 	
 }
