@@ -1,17 +1,15 @@
 package CPP;
 
-import java.util.Queue;
 import java.lang.Thread;
 import java.util.Scanner;
 import java.util.concurrent.locks.Lock;
 
-public class main {
+public class main{
 
 	public static void main(String[] args) {
 		Scanner in = new Scanner(System.in);
 		int N;
-		Monitor S = new Monitor(1);
-		Queue <Request> request_queue = new Queue<Request>(); //debug
+		MyQueue request_queue = new MyQueue(); //debug
 		System.out.println("Input amount of Slave threads: ");
 		N = in.nextInt();
 		int ID[] = new int[N];
@@ -20,7 +18,6 @@ public class main {
 		//generate slaves
 		for(int i = 0; i<N; i++) {
 			//ID[i] = pthread_create(&threads[i], NULL, thread_routine, (void*)i);
-			
 		}
 		
 		int count = 0;
@@ -48,13 +45,13 @@ public class main {
 		
 	}
 	
-	void thread_routine(int id, Monitor S) {
+	void thread_routine(int id, MyQueue request_queue, Thread[] threads) {
 		//Print "thread *ID* entered"
 		while(true) {
-			S.wait();
+			threads.wait();
 			if(!request_queue.empty()) {
 				Request top = request_queue.front();
-				request_queue.pop();
+				request_queue.dequeue();
 				System.out.println("Consumer " + id + ": assigned Req: " + top.getID() + " for " 
 						+ top.length + "s");
 				S.notify(id);
@@ -87,33 +84,36 @@ class Request {
 	
 }
 
-class Monitor {
-	private final Lock lock;
-	private int count;
-	
-	public Monitor(int count) {
-		this.count = count;
-	}
-	
-	void notify(int tid) {
-		
-		
-		count++;
-	}
-	
-	void wait(int tid) {
-		// std::unique_lock<std::mutex> lock(mtx);
-		while(count == 0) {
-			System.out.println("thread " + tid + " wait");
-			
-			//wait on the mutex until notify is called
-			//cv.wait(lock);
-			System.out.println("thread " + tid + " run");
-		}
-		
-		count--;
-	}
-	
-	
+class MyQueue{
+    private Request arr[];          // array to store queue elements
+    public Request front;          // front points to front element in the queue
+    private int rear;           // rear points to last element in the queue
+    private int capacity;       // maximum capacity of the queue
+    private int count;          // current size of the queue
+    
+    public synchronized void push(Request re) {
+    	arr[rear+1]=re;
+    	count++;
+    }
+    public synchronized void dequeue() {
+        // check for queue underflow
+        if (empty()){
+            System.out.println("UnderFlow\nProgram Terminated");
+            System.exit(1);
+        }
+ 
+        System.out.println("Removing " + front);
+ 
+        front = arr[count+1];
+        count--;
+    }
+    
+    public synchronized Boolean empty(){
+        return (count == 0);
+    }	
+    public synchronized int size() {
+    	return count;
+    }
+    
 
 }
