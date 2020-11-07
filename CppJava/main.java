@@ -23,7 +23,7 @@ public class main{
 			//TODO: Implement slave generating
 			//ID[i] = pthread_create(&threads[i], NULL, thread_routine, (void*)i);
 			threads[id] = new myThread(request_queue.front());
-			threads[id].thread_routine(id, request_queue, threads[id]);
+			threads[id].thread_routine(id, request_queue);
 			sleep_master();
 		}
 		
@@ -103,9 +103,7 @@ class MyQueue{
 	}
 	public int rear() {
 		return rear;
-	}
-    
-    
+	}   
 }
 
 class myThread implements Runnable{
@@ -113,11 +111,11 @@ class myThread implements Runnable{
 	public myThread(Request re) {
 		this.re = re;
 	}
-	public static void thread_routine(int id, MyQueue request_queue, myThread thread){
+	public static void thread_routine(int id, MyQueue request_queue){
 		//Print "thread *ID* entered"
 		System.out.println("thread " + id + " entered");
 		while(true) {
-			thread.wait();
+			wait();
 			if(!request_queue.empty()) {
 				Request top = request_queue.front();
 				request_queue.dequeue();
@@ -128,7 +126,7 @@ class myThread implements Runnable{
 				System.out.println("Consumer " + id + ": completed Req: " + top.getID());
 			}
 			//TODO: implement notify for monitor
-			else S.notify(id);
+			else notify(id);
 		}
 		//pthread_exit(NULL); //kill
 	}
