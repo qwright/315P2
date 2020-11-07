@@ -1,33 +1,33 @@
-//implemented based on C implementation using eclipse console for printing - to be changed
-//having issues implementing requestQueue as a Queue of Request objects
-
 package CPP;
 
 import java.util.Queue;
+import java.lang.Thread;
 import java.util.Scanner;
+import java.util.concurrent.locks.Lock;
 
 public class main {
 
 	public static void main(String[] args) {
 		Scanner in = new Scanner(System.in);
 		int N;
-		Semaphore S = new Semaphore(1);
+		Monitor S = new Monitor(1);
 		Queue <Request> request_queue = new Queue<Request>(); //debug
 		System.out.println("Input amount of Slave threads: ");
 		N = in.nextInt();
 		int ID[] = new int[N];
-		//pthread_t threads[N];
+		Thread threads[] = new Thread[N];
 		
 		//generate slaves
 		for(int i = 0; i<N; i++) {
 			//ID[i] = pthread_create(&threads[i], NULL, thread_routine, (void*)i);
+			
 		}
 		
 		int count = 0;
 		long curr_time = System.currentTimeMillis();
 		
 		//generate requests
-		while(true) { 
+		while(true) { //not sure about true
 			if(request_queue.size() != 5) { //arbitrary thread size
 				Request next_request = new Request(count);
 				System.out.println("Producer: New request ID: " + next_request.getID() 
@@ -48,7 +48,7 @@ public class main {
 		
 	}
 	
-	void thread_routine(int id, Semaphore S) {
+	void thread_routine(int id, Monitor S) {
 		//Print "thread *ID* entered"
 		while(true) {
 			S.wait();
@@ -85,17 +85,13 @@ class Request {
 		return request_ID;
 	}
 	
-	
-	
 }
 
-class Semaphore {
-
+class Monitor {
+	private final Lock lock;
 	private int count;
-	//private mutex mtx
-	//private condition_variable cv
 	
-	public Semaphore(int count) {
+	public Monitor(int count) {
 		this.count = count;
 	}
 	
