@@ -20,10 +20,9 @@ public class main{
 		}
 		//generate slaves
 		for (int id : ID){
-			//TODO: Implement slave generating
-			//ID[i] = pthread_create(&threads[i], NULL, thread_routine, (void*)i);
 			threads[id] = new myThread(request_queue.front());
 			threads[id].thread_routine(id, request_queue);
+			//sleep
 			sleep_master();
 		}
 		
@@ -111,11 +110,10 @@ class myThread implements Runnable{
 	public myThread(Request re) {
 		this.re = re;
 	}
-	public static void thread_routine(int id, MyQueue request_queue){
+	public static void thread_routine(int id, MyQueue request_queue) throws InterruptedException{
 		//Print "thread *ID* entered"
 		System.out.println("thread " + id + " entered");
 		while(true) {
-			wait();
 			if(!request_queue.empty()) {
 				Request top = request_queue.front();
 				request_queue.dequeue();
@@ -126,7 +124,7 @@ class myThread implements Runnable{
 				System.out.println("Consumer " + id + ": completed Req: " + top.getID());
 			}
 			//TODO: implement notify for monitor
-			else notify(id);
+			
 		}
 		//pthread_exit(NULL); //kill
 	}
