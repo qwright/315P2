@@ -13,15 +13,18 @@ public class main{
 		System.out.println("Input amount of Slave threads: ");
 		N = in.nextInt();
 		int ID[] = new int[N];
-		Thread threads[] = new Thread[N];
+		myThread threads[] = new myThread[N];
 		
+		for(int i = 0; i<N; i++) {
+			ID[i] = i;
+		}
 		//generate slaves
-		int request_id = 0;
 		for (int id : ID){
 			//TODO: Implement slave generating
 			//ID[i] = pthread_create(&threads[i], NULL, thread_routine, (void*)i);
-			
-			request_id++;
+			threads[id] = new myThread(request_queue.front());
+			threads[id].thread_routine(id, request_queue, threads[id]);
+			sleep_master();
 		}
 		
 		int count = 0;
@@ -45,35 +48,11 @@ public class main{
 		Thread.sleep((int)(1 + Math.random() * 5)); //sleep randomly for 1-5 seconds
 	}
 	
-	void thread_routine(int id, MyQueue request_queue, Thread[] threads) {
-		//Print "thread *ID* entered"
-		while(true) {
-			threads.wait();
-			if(!request_queue.empty()) {
-				Request top = request_queue.front();
-				request_queue.dequeue();
-				System.out.println("Consumer " + id + ": assigned Req: " + top.getID() + " for " 
-						+ top.getLength() + "s");
-				//S.notify(id);
-				Thread.sleep(top.getLength());
-				System.out.println("Consumer " + id + ": completed Req: " + top.getID());
-			}
-			//TODO: implement notify for monitor
-			else S.notify(id);
-		}
-		//pthread_exit(NULL); //kill
-	}
-	
-
 }
 	class Request {
 
 	    private int request_ID;
 	    private int length; 
-
-	    public Request() {
-
-	    }
 
 	    public Request(int r, int l) {
 	        request_ID = r;
@@ -127,4 +106,37 @@ class MyQueue{
 	}
     
     
+}
+
+class myThread implements Runnable{
+	private Request re;
+	public myThread(Request re) {
+		this.re = re;
+	}
+	public static void thread_routine(int id, MyQueue request_queue, myThread thread){
+		//Print "thread *ID* entered"
+		System.out.println("thread " + id + " entered");
+		while(true) {
+			thread.wait();
+			if(!request_queue.empty()) {
+				Request top = request_queue.front();
+				request_queue.dequeue();
+				System.out.println("Consumer " + id + ": assigned Req: " + top.getID() + " for " 
+						+ top.getLength() + "s");
+				//S.notify(id);
+				Thread.sleep(top.getLength());
+				System.out.println("Consumer " + id + ": completed Req: " + top.getID());
+			}
+			//TODO: implement notify for monitor
+			else S.notify(id);
+		}
+		//pthread_exit(NULL); //kill
+	}
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	
 }
