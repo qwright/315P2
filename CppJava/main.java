@@ -21,21 +21,29 @@ public class main{
 			ID[i] = i;
 		}
 		//generate slaves
-		for (int id : ID){
-			threads[id] = new sThread(request_queue.front());
-			threads[id].thread_routine(id, request_queue);
-			//sleep
-			sleep_master();
+		int idCount = 0;
+		for (sThread thread : threads){
+			thread = new sThread(request_queue.front());
+			thread.setId(idCount);
+			idCount++;
 		}
 		int max;
-		System.out.println("Intput number of jobs done: ");
+		System.out.println("Input number of jobs to be done: ");
 		max = in.nextInt();
 		mThread master = new mThread(max);
 		int count = 0;
-		
+		int jobsToDo = max;
 		//generate requests
         while(count<max) { 
-            master.generateThreads(request_queue, count);
+        	master.generateThreads(request_queue, count);
+        	if(request_queue.size()==jobsToDo) {
+        		int index = 0;
+        		while(!request_queue.empty()&&index!=N) {
+        			threads[index].thread_routine(idCount, request_queue);
+        			index++;
+        			jobsToDo--;
+        		}
+        	}
         }
      }
 	
@@ -103,8 +111,15 @@ class MyQueue{
 
 class sThread implements Runnable{
 	private Request re;
+	int id;
 	public sThread(Request re) {
 		this.re = re;
+	}
+	void setId(int id) {
+		this.id=id;
+	}
+	int getId() {
+		return this.id;
 	}
 	public static void thread_routine(int id, MyQueue request_queue) throws InterruptedException{
 		//Print "thread *ID* entered"
@@ -127,7 +142,6 @@ class sThread implements Runnable{
 		
 	}
 
-	
 }
 
 class mThread {
