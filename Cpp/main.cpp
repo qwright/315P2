@@ -9,28 +9,23 @@
 
 using namespace std;
 
-// see https://cpluspluspedia.com/en/tutorial/9785/semaphore -> TODO: implement our own this is just for reference
+// see https://cpluspluspedia.com/en/tutorial/9785/semaphore is the reference here
 class Semaphore {
 public:
     Semaphore (int count_ = 0)
-    : count(count_) 
     {
+			this->count = count_; // use arrow operator for accessign members of a struct via ptr
     }
     
-    inline void notify( int tid ) {
+    inline void notify( int tid ) { // keeps these methods atomic?
         std::unique_lock<std::mutex> lock(mtx);
         count++;
-        //cout << "thread " << tid <<  " notify" << endl;
-        //notify the waiting thread
         cv.notify_one();
     }
     inline void wait( int tid ) {
         std::unique_lock<std::mutex> lock(mtx);
         while(count == 0) {
-            //cout << "thread " << tid << " wait" << endl;
-            //wait on the mutex until notify is called
             cv.wait(lock);
-            //cout << "thread " << tid << " run" << endl;
         }
         count--;
     }
@@ -59,8 +54,8 @@ int Request::getID(){
 }
 
 //global variables (shared between threads)
-
-Semaphore S(1); //can we get this constructed more dynamically?
+int QUEUE_SIZE = 5;
+Semaphore S(1); //while more is tempting, multple threads should not be able to access queue simultaneously
 queue<Request> request_queue; //request queue
 
 //sleep a thread for a random amount of time
@@ -72,6 +67,7 @@ void sleep_master()
 //slaves(i.e. consumers) enter here
 void *thread_routine(void *id)
 {
+	time_t fin_time;
 	//printf("Thread #%ld entered\n", (long)id);
 	while(true){
 		S.wait((long)id);
@@ -81,7 +77,8 @@ void *thread_routine(void *id)
 			cout << "Consumer " << (long)id << ": assigned Req: " << top.getID() << " for " << top.length << "s" << endl;
 			S.notify((long)id);
 			sleep(top.length);
-			cout << "Consumer " << long(id) << ": completed Req: " << top.getID() << endl;
+			fin_time = time(0);
+			cout << "Consumer " << long(id) << ": completed Req: " << top.getID() << " at t=" << ctime(&fin_time) << endl;
 		}else{
 			S.notify((long)id);
 		}
@@ -109,7 +106,7 @@ int main()
 	time_t curr_time;
 	//generate requests
 	while(true){
-		if(request_queue.size() != 5){ //arbitrary size for thread
+		if(request_queue.size() != QUEUE_SIZE){ //arbitrary size for thread
 			Request next_request(count);
 			curr_time = time(0);
 			cout << "Producer: New request ID: " << next_request.getID() << ", L= " << next_request.length << " time:" << ctime(&curr_time) << endl;
