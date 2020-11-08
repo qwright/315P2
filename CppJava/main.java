@@ -3,7 +3,6 @@ package CPP;
 import java.lang.Thread;
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.concurrent.locks.Lock;
 
 public class main{
 
