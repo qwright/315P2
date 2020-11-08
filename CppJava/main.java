@@ -9,41 +9,40 @@ public class main{
 	public static void main(String[] args) throws InterruptedException {
 		Scanner in = new Scanner(System.in);
 		int N;
-		MyQueue request_queue = new MyQueue();
+		
 		System.out.println("Input amount of Slave threads: ");
 		N = in.nextInt();
 		int ID[] = new int[N];
 		sThread threads[] = new sThread[N];
 		
+		System.out.println("Input number of jobs to be done: ");
+		int max;
+		max = in.nextInt();
 		
 		
-		for(int i = 0; i<N; i++) {
-			ID[i] = i;
-		}
 		//generate slaves
+		MyQueue request_queue = new MyQueue(max);
 		int idCount = 0;
 		for (sThread thread : threads){
 			thread = new sThread(request_queue.front());
 			thread.setId(idCount);
 			idCount++;
 		}
-		int max;
-		System.out.println("Input number of jobs to be done: ");
-		max = in.nextInt();
+		
 		mThread master = new mThread(max);
 		int count = 0;
 		int jobsToDo = max;
 		//generate requests
         while(count<max) { 
         	master.generateThreads(request_queue, count);
-        	if(request_queue.size()==jobsToDo) {
+        
         		int index = 0;
         		while(!request_queue.empty()&&index!=N) {
-        			threads[index].thread_routine(idCount, request_queue);
+        			threads[index].thread_routine(index, request_queue);
         			index++;
-        			jobsToDo--;
-        		}
+        			
         	}
+        	count++;
         }
      }
 	
@@ -77,6 +76,11 @@ class MyQueue{
     private int rear;           // rear points to last element in the queue
     private int capacity;       // maximum capacity of the queue
     private int count;          // current size of the queue
+    
+    MyQueue(int i){
+    	this.arr = new Request[i];
+    	this.front = arr[i-1];
+    }
     
     public synchronized void push(Request re) {
     	arr[rear+1]=re;
@@ -158,7 +162,7 @@ class mThread {
             int rlength = (int)(1+Math.random()*10); // random length between 1-10s
             Request next_request = new Request(count, rlength);
             System.out.println("Producer: New request ID: " + next_request.getID() 
-                + ", L= "+next_request.getLength()+ "time: " + curr_time);
+                + ", L= "+next_request.getLength()+ " time: " + curr_time);
             q.push(next_request);
             count++;
         }
