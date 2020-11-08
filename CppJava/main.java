@@ -1,6 +1,7 @@
 package CPP;
 
 import java.lang.Thread;
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.concurrent.locks.Lock;
 
@@ -23,11 +24,6 @@ public class main{
 		//generate slaves
 		MyQueue request_queue = new MyQueue(max);
 		int idCount = 0;
-		for (sThread thread : threads){
-			thread = new sThread(request_queue.front());
-			thread.setId(idCount);
-			idCount++;
-		}
 		
 		mThread master = new mThread(max);
 		int count = 0;
@@ -37,10 +33,9 @@ public class main{
         	master.generateThreads(request_queue, count);
         
         		int index = 0;
-        		while(!request_queue.empty()&&index!=N) {
+        		while(!request_queue.empty()) {
         			threads[index].thread_routine(index, request_queue);
         			index++;
-        			
         	}
         	count++;
         }
@@ -70,52 +65,47 @@ public class main{
 
 	}
 
-class MyQueue{
-    private Request arr[];          // array to store queue elements
-    public Request front;          // front points to front element in the queue
-    private int rear;           // rear points to last element in the queue
-    private int capacity;       // maximum capacity of the queue
-    private int count;          // current size of the queue
-    
-    MyQueue(int i){
-    	this.arr = new Request[i];
-    	this.front = arr[i-1];
-    }
-    
-    public synchronized void push(Request re) {
-    	arr[rear+1]=re;
-    	count++;
-    }
-    public synchronized void dequeue() {
-        // check for queue underflow
-        if (empty()){
-            System.out.println("UnderFlow\nProgram Terminated");
-            System.exit(1);
-        }
- 
-        System.out.println("Removing " + front);
- 
-        front = arr[count+1];
-        count--;
-    }
-    
-    public synchronized Boolean empty(){
-        return (count == 0);
-    }	
-    public synchronized int size() {
-    	return count;
-    }
-	public Request front() {
-		return front;
+	class MyQueue{
+	    private ArrayList<Request> arr = new ArrayList<Request>();          // array to store queue elements
+	    private int count=arr.size();          // current size of the queue
+	    //public Request front= arr.get(0);          // front points to front element in the queue
+	    //private Request rear= arr.get(count);           // rear points to last element in the queue
+	    MyQueue(int max){
+	    	this.arr = new ArrayList<Request>(max);
+	    }
+	    public synchronized void push(Request re) {
+	        arr.add(re);
+	    }
+	    public synchronized void dequeue() {
+	        // check for queue underflow
+	        if (empty()){
+	            System.out.println("UnderFlow\nProgram Terminated");
+	            System.exit(1);
+	        }
+	        arr.remove(0);
+	    }
+
+	    public synchronized Boolean empty(){
+	        return (count == 0);
+	    }
+	    public synchronized int size() {
+	        return count;
+	    }
+	    public synchronized Request front() {
+	        return arr.get(0);
+	    }
+	    public synchronized Request rear() {
+	        return arr.get(count);
+	    }
 	}
-	public int rear() {
-		return rear;
-	}   
-}
 
 class sThread implements Runnable{
 	private Request re;
 	int id;
+	public sThread() {
+		this.re = null;
+		id = 0;
+	}
 	public sThread(Request re) {
 		this.re = re;
 	}
@@ -129,15 +119,13 @@ class sThread implements Runnable{
 		//Print "thread *ID* entered"
 		System.out.println("thread " + id + " entered");
 		while(true) {
-			if(!request_queue.empty()) {
 				Request top = request_queue.front();
 				request_queue.dequeue();
 				System.out.println("Consumer " + id + ": assigned Req: " + top.getID() + " for " 
 						+ top.getLength() + "s");
-				//S.notify(id);
 				Thread.sleep(top.getLength());
 				System.out.println("Consumer " + id + ": completed Req: " + top.getID());
-			}	
+			
 		}
 	}
 	@Override
@@ -161,9 +149,9 @@ class mThread {
 		if(q.size() != 5) { //arbitrary thread size
             int rlength = (int)(1+Math.random()*10); // random length between 1-10s
             Request next_request = new Request(count, rlength);
+            q.push(next_request);
             System.out.println("Producer: New request ID: " + next_request.getID() 
                 + ", L= "+next_request.getLength()+ " time: " + curr_time);
-            q.push(next_request);
             count++;
         }
 	}
