@@ -23,19 +23,15 @@ public class mainv2{
 		
 		//generate slaves
 		MyQueue request_queue = new MyQueue(max);
-		int idCount = 0;
 		
-		mThread master = new mThread(max);
 		int count = 0;
-		int jobsToDo = max;
 		//generate requests
 
 		for(int i=0; i<N; i++) {
         	generateThreads(request_queue, count);
         	count++;
 		}
-			
-        	
+
         		int index = 0;
         		while(request_queue.size() != 5) {
         			thread_routine(index, request_queue);
@@ -61,6 +57,7 @@ public class mainv2{
 		if(q.size() != 5) { //arbitrary thread size
             int rlength = (int)(1+Math.random()*10); // random length between 1-10s
             Request next_request = new Request(count, rlength);
+            new Thread(new sThread()).start();
             q.push(next_request);
             System.out.println("Producer: New request ID: " + next_request.getID() 
                 + ", L= "+next_request.getLength()+ " time: " + curr_time);
@@ -127,15 +124,8 @@ public class mainv2{
 	}
 
 class sThread implements Runnable{
-	private Request re;
 	int id;
-	public sThread() {
-		this.re = null;
-		id = 0;
-	}
-	public sThread(Request re) {
-		this.re = re;
-	}
+
 	void setId(int id) {
 		this.id=id;
 	}
@@ -145,7 +135,7 @@ class sThread implements Runnable{
 
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
+        System.out.println("Inside slave : " + Thread.currentThread().getName());
 		
 	}
 
@@ -155,16 +145,14 @@ class mThread implements Runnable{
 	
 	private int max;
 	
-	public mThread(int max) {
-		this.max = max;
-	}
+
 	
 
 	public static void main(String[] args) {
         System.out.println("Inside : " + Thread.currentThread().getName());
 
         System.out.println("Creating Runnable...");
-        Runnable runnable = new mThread(5);
+        Runnable runnable = new mThread();
 
         System.out.println("Creating Thread...");
         Thread thread = new Thread(runnable);
@@ -175,7 +163,7 @@ class mThread implements Runnable{
 
     @Override
     public void run() {
-        System.out.println("Inside : " + Thread.currentThread().getName());
+        System.out.println("Inside master: " + Thread.currentThread().getName());
     }
 }	
 	
