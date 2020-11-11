@@ -1,8 +1,9 @@
-package CPP;
+package RoundG;
 
 import java.lang.Thread;
 import java.util.ArrayList;
 import java.util.Scanner;
+
 
 public class main{
 
@@ -28,17 +29,44 @@ public class main{
 		int count = 0;
 		int jobsToDo = max;
 		//generate requests
-        while(count<max) { 
-        	master.generateThreads(request_queue, count);
-        
+
+		for(int i=0; i<N; i++) {
+        	generateThreads(request_queue, count);
+        	count++;
+		}
+			
+        	
         		int index = 0;
-        		while(!request_queue.empty()) {
-        			threads[index].thread_routine(index, request_queue);
+        		while(request_queue.size() != 5) {
+        			thread_routine(index, request_queue);
         			index++;
         	}
         	count++;
-        }
      }
+	public static void thread_routine(int id, MyQueue request_queue) throws InterruptedException{
+		//Print "thread *ID* entered"
+		System.out.println("thread " + id + " entered");
+		while(true) {
+				Request top = request_queue.front();
+				request_queue.dequeue();
+				System.out.println("Consumer " + id + ": assigned Req: " + top.getID() + " for " 
+						+ top.getLength() + "s");
+				Thread.sleep(top.getLength());
+				System.out.println("Consumer " + id + ": completed Req: " + top.getID());
+			
+		}
+	}
+	static void generateThreads(MyQueue q, int count) {
+		long curr_time = System.currentTimeMillis();
+		if(q.size() != 5) { //arbitrary thread size
+            int rlength = (int)(1+Math.random()*10); // random length between 1-10s
+            Request next_request = new Request(count, rlength);
+            q.push(next_request);
+            System.out.println("Producer: New request ID: " + next_request.getID() 
+                + ", L= "+next_request.getLength()+ " time: " + curr_time);
+            count++;
+        }
+	}	
 	
 	public static void sleep_master() throws InterruptedException {
 		Thread.sleep((int)(1 + Math.random() * 5)); //sleep randomly for 1-5 seconds
@@ -114,19 +142,7 @@ class sThread implements Runnable{
 	int getId() {
 		return this.id;
 	}
-	public static void thread_routine(int id, MyQueue request_queue) throws InterruptedException{
-		//Print "thread *ID* entered"
-		System.out.println("thread " + id + " entered");
-		while(true) {
-				Request top = request_queue.front();
-				request_queue.dequeue();
-				System.out.println("Consumer " + id + ": assigned Req: " + top.getID() + " for " 
-						+ top.getLength() + "s");
-				Thread.sleep(top.getLength());
-				System.out.println("Consumer " + id + ": completed Req: " + top.getID());
-			
-		}
-	}
+
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
@@ -135,7 +151,7 @@ class sThread implements Runnable{
 
 }
 
-class mThread {
+class mThread implements Runnable{
 	
 	private int max;
 	
@@ -143,16 +159,23 @@ class mThread {
 		this.max = max;
 	}
 	
-	void generateThreads(MyQueue q, int count) {
-		long curr_time = System.currentTimeMillis();
-		if(q.size() != 5) { //arbitrary thread size
-            int rlength = (int)(1+Math.random()*10); // random length between 1-10s
-            Request next_request = new Request(count, rlength);
-            q.push(next_request);
-            System.out.println("Producer: New request ID: " + next_request.getID() 
-                + ", L= "+next_request.getLength()+ " time: " + curr_time);
-            count++;
-        }
-	}
+
+	public static void main(String[] args) {
+        System.out.println("Inside : " + Thread.currentThread().getName());
+
+        System.out.println("Creating Runnable...");
+        Runnable runnable = new mThread(5);
+
+        System.out.println("Creating Thread...");
+        Thread thread = new Thread(runnable);
+
+        System.out.println("Starting Thread...");
+        thread.start();
+    }
+
+    @Override
+    public void run() {
+        System.out.println("Inside : " + Thread.currentThread().getName());
+    }
+}	
 	
-}
