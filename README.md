@@ -34,3 +34,9 @@ Run the program using the run button and insert the number of threads and number
 Producer currently operates with a random "execution time" to produce requests of 1-5s up to a maximum of 5 requests, consumers 1-10s.
 
 The program will exit automatically when the requests have all been fullfilled.
+
+# SAMPLE OUTPUTS
+
+C++:
+
+![cpp](Images/cpp_output.png)
