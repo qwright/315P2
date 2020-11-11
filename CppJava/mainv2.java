@@ -27,11 +27,9 @@ public class mainv2{
 
 
         		int index = 0;
-        		System.out.println("size "+(request_queue.arr.size()));
         		while(request_queue.arr.size()>0) {
         			thread_routine(index, request_queue);
         			index++;
-        			System.out.println("weed");
         	}
         	in.close();
 
@@ -101,7 +99,6 @@ public class mainv2{
 	    }
 	    public synchronized void push(Request re) {
 	        arr.add(re);
-	        System.out.println("we nin boys");
 	    }
 	    public synchronized void dequeue() {
 	        // check for queue underflow
@@ -165,4 +162,4 @@ class mThread implements Runnable{
         System.out.println("Inside master: " + Thread.currentThread().getName());
     }
 }	
-
+	
