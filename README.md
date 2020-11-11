@@ -4,6 +4,8 @@ Project 2 for 315 with Java and C++ implementations:
 
 Two implementations of a multi-threaded request scheduler in C++ and Java
 
+To read a discussion about the implementations, please read Discussion.docx
+
 ## C++ Instructions
 
 To run, clone this repository and navigate to '/Cpp', ensure that you have g++ compiler installed (Which should be...)
