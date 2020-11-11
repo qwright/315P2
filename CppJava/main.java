@@ -4,6 +4,7 @@ import java.lang.Thread;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+
 public class main{
 
 	public static void main(String[] args) throws InterruptedException {
@@ -12,7 +13,6 @@ public class main{
 		
 		System.out.println("Input amount of Slave threads: ");
 		N = in.nextInt();
-		int ID[] = new int[N];
 		sThread threads[] = new sThread[N];
 		
 		System.out.println("Input number of jobs to be done: ");
@@ -20,32 +20,37 @@ public class main{
 		max = in.nextInt();
 		
 		
-		//generate slaves
 		MyQueue request_queue = new MyQueue(max);
-		int idCount = 0;
-		
-		mThread master = new mThread(max);
+		mThread master = new mThread();
 		int count = 0;
-		int jobsToDo = max;
+		for(int j = 0; j<N; j++) {
+			threads[j] = new sThread(j);
+		}
+
 		//generate requests
-        while(count<max) { 
-        	master.generateThreads(request_queue, count);
-        
-        		int index = 0;
-        		while(!request_queue.empty()) {
-        			threads[index].thread_routine(index, request_queue);
-        			index++;
-        	}
+
+		for(int i=0; i<5; i++) {
+        	request_queue = master.generateRequests(request_queue, count);
         	count++;
-        }
+        	// run requests
+        		int index = 0;
+        		if(!request_queue.empty()) {
+        			while(index<request_queue.size()) {
+        				request_queue = threads[i].thread_routine(index, request_queue);
+        				index++;
+        			}
+        		}
+        		if(count==max) break;
+        		i=0;
+		}
      }
-	
+		
 	public static void sleep_master() throws InterruptedException {
 		Thread.sleep((int)(1 + Math.random() * 5)); //sleep randomly for 1-5 seconds
 	}
-	
 }
-	class Request {
+	
+class Request {
 
 	    private int request_ID;
 	    private int length; 
@@ -61,7 +66,6 @@ public class main{
 	    public int getLength() {
 	        return length;
 	    }
-
 	}
 
 	class MyQueue{
@@ -75,84 +79,82 @@ public class main{
 	    public synchronized void push(Request re) {
 	        arr.add(re);
 	    }
-	    public synchronized void dequeue() {
+	    public synchronized Request dequeue() {
 	        // check for queue underflow
 	        if (empty()){
 	            System.out.println("UnderFlow\nProgram Terminated");
 	            System.exit(1);
 	        }
+	        Request r = arr.get(0);
 	        arr.remove(0);
+	        return r;
 	    }
 
 	    public synchronized Boolean empty(){
 	        return (count == 0);
 	    }
 	    public synchronized int size() {
+	        int count = 0;
+	        for (Request r: this.arr){
+	        	count++;
+	        }
 	        return count;
 	    }
 	    public synchronized Request front() {
 	        return arr.get(0);
 	    }
 	    public synchronized Request rear() {
-	        return arr.get(count);
+	        return arr.get(count-1);
 	    }
 	}
 
 class sThread implements Runnable{
-	private Request re;
 	int id;
-	public sThread() {
-		this.re = null;
-		id = 0;
+	sThread(int id){
+		this.id = id;
 	}
-	public sThread(Request re) {
-		this.re = re;
-	}
+
 	void setId(int id) {
 		this.id=id;
 	}
 	int getId() {
 		return this.id;
 	}
-	public static void thread_routine(int id, MyQueue request_queue) throws InterruptedException{
+	public static MyQueue thread_routine(int id, MyQueue request_queue) throws InterruptedException{
 		//Print "thread *ID* entered"
 		System.out.println("thread " + id + " entered");
-		while(true) {
-				Request top = request_queue.front();
-				request_queue.dequeue();
-				System.out.println("Consumer " + id + ": assigned Req: " + top.getID() + " for " 
-						+ top.getLength() + "s");
-				Thread.sleep(top.getLength());
-				System.out.println("Consumer " + id + ": completed Req: " + top.getID());
-			
-		}
+		Request top = request_queue.dequeue();
+		System.out.println("Consumer " + Thread.currentThread().getId() + ": assigned Req: " + top.getID() + " for " + top.getLength() + "s");
+		Runnable runnable = new mThread();
+		Thread thread=new Thread(runnable);
+		thread.start();
+		Thread.sleep(top.getLength());
+		System.out.println("Consumer " + id + ": completed Req: " + top.getID());
+		return request_queue;
 	}
+
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
-		
+        System.out.println("Inside slave : " + Thread.currentThread().getName());
 	}
-
 }
 
-class mThread {
+class mThread implements Runnable{
 	
 	private int max;
 	
-	public mThread(int max) {
-		this.max = max;
-	}
-	
-	void generateThreads(MyQueue q, int count) {
+	static MyQueue generateRequests(MyQueue q, int count) {
 		long curr_time = System.currentTimeMillis();
-		if(q.size() != 5) { //arbitrary thread size
-            int rlength = (int)(1+Math.random()*10); // random length between 1-10s
-            Request next_request = new Request(count, rlength);
-            q.push(next_request);
-            System.out.println("Producer: New request ID: " + next_request.getID() 
-                + ", L= "+next_request.getLength()+ " time: " + curr_time);
-            count++;
-        }
-	}
+        int rlength = (int)(1+Math.random()*10); // random length between 1-10s
+        Request next_request = new Request(count, rlength);
+        q.push(next_request);
+        System.out.println("Producer: New request ID: " + next_request.getID() + ", L= "+next_request.getLength()+ " time: " + curr_time);
+        count++;
+		return q;
+	}	
+    @Override
+    public void run() {
+        System.out.println("Inside master: " + Thread.currentThread().getName());
+    }
+}	
 	
-}
