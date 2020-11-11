@@ -29,20 +29,20 @@ public class main{
 
 		//generate requests
 
-		for(int i=0; i<5; i++) {
+		for(int i=0; i<max; i++) {
         	request_queue = master.generateRequests(request_queue, count);
         	count++;
+		}
         	// run requests
         		int index = 0;
-        		if(!request_queue.empty()) {
-        			while(index<request_queue.size()) {
-        				request_queue = threads[i].thread_routine(i, request_queue);
-        				index++;
+        		while(!request_queue.empty()){
+        			for(sThread thread: threads) {
+        				thread.thread_routine(thread.getId(), request_queue);
         			}
         		}
-        		if(count==max) break;
-        		i=0;
-		}
+        	
+        		
+		
      }
 		
 	public static void sleep_master() throws InterruptedException {
@@ -124,7 +124,7 @@ class sThread implements Runnable{
 		//Print "thread *ID* entered"
 		System.out.println("thread " + id + " entered");
 		Request top = request_queue.dequeue();
-		System.out.println("Consumer " + Thread.currentThread().getId() + ": assigned Req: " + top.getID() + " for " + top.getLength() + "s");
+		System.out.println("Consumer " + id + ": assigned Req: " + top.getID() + " for " + top.getLength() + "s");
 		Runnable runnable = new mThread();
 		Thread thread=new Thread(runnable);
 		thread.start();
