@@ -20,34 +20,32 @@ public class main{
 		max = in.nextInt();
 		
 		
-		MyQueue request_queue = new MyQueue(max);
+		MyQueue request_queue = new MyQueue(5);
 		mThread master = new mThread();
 		int count = 0;
 		for(int j = 0; j<N; j++) {
 			threads[j] = new sThread(j);
 		}
 
-		//generate requests
+		//generate and execute requests
 
-		for(int i=0; i<max; i++) {
-        	request_queue = master.generateRequests(request_queue, count);
-        	count++;
-		}
-        	// run requests
-        		int index = 0;
-        		while(!request_queue.empty()){
-        			for(sThread thread: threads) {
-        				thread.thread_routine(thread.getId(), request_queue);
-        			}
+		int tally = 0;
+        while(tally<max) {
+        	if(request_queue.size()==0) {
+        		for(int j = 0; j<N; j++) {
+                	request_queue = master.generateRequests(request_queue, tally);
+                	tally++;
         		}
-        	
-        		
-		
+        		while(!request_queue.empty()){
+        	        for(sThread thread: threads) {
+        	        	thread.thread_routine(thread.getId(), request_queue);
+        	        }
+        		}
+        	}
+        }
      }
 		
-	public static void sleep_master() throws InterruptedException {
-		Thread.sleep((int)(1 + Math.random() * 5)); //sleep randomly for 1-5 seconds
-	}
+	
 }
 	
 class Request {
@@ -143,15 +141,19 @@ class mThread implements Runnable{
 	
 	private int max;
 	
-	static MyQueue generateRequests(MyQueue q, int count) {
+	static MyQueue generateRequests(MyQueue q, int count) throws InterruptedException {
 		long curr_time = System.currentTimeMillis();
         int rlength = (int)(1+Math.random()*10); // random length between 1-10s
         Request next_request = new Request(count, rlength);
         q.push(next_request);
-        System.out.println("Producer: New request ID: " + next_request.getID() + ", L= "+next_request.getLength()+ " time: " + curr_time);
+        System.out.println("Producer: New request ID: " + count + ", L= "+next_request.getLength()+ " time: " + curr_time);
         count++;
+        sleep_master();
 		return q;
 	}	
+	public static void sleep_master() throws InterruptedException {
+		Thread.sleep((int)(1 + Math.random() * 5)); //sleep randomly for 1-5 seconds
+	}
     @Override
     public void run() {
     }
