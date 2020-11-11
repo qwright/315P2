@@ -37,7 +37,7 @@ public class mainv2{
 	public static void thread_routine(int id, MyQueue request_queue) throws InterruptedException{
 		//Print "thread *ID* entered"
 		System.out.println("thread " + id + " entered");
-		while(true) {
+		while(request_queue.arr.size()>0) {
 				Request top = request_queue.front();
 				request_queue.dequeue();
 	            new Thread(new mThread()).start();
@@ -116,7 +116,11 @@ public class mainv2{
 	        return count;
 	    }
 	    public synchronized Request front() {
-	        return arr.get(0);
+	    	if(arr.size()!=0)
+	          return arr.get(0);
+	    	else
+	    		return null;
+	    		    
 	    }
 	    public synchronized Request rear() {
 	        return arr.get(count);
@@ -162,4 +166,5 @@ class mThread implements Runnable{
         System.out.println("Inside master: " + Thread.currentThread().getName());
     }
 }	
+
 	
