@@ -36,7 +36,7 @@ public class main{
         		int index = 0;
         		if(!request_queue.empty()) {
         			while(index<request_queue.size()) {
-        				request_queue = threads[i].thread_routine(index, request_queue);
+        				request_queue = threads[i].thread_routine(i, request_queue);
         				index++;
         			}
         		}
@@ -154,7 +154,6 @@ class mThread implements Runnable{
 	}	
     @Override
     public void run() {
-        System.out.println("Inside master: " + Thread.currentThread().getName());
     }
 }	
 	
