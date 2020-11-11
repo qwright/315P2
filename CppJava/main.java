@@ -91,7 +91,7 @@ class Request {
 	    }
 
 	    public synchronized Boolean empty(){
-	        return (count == 0);
+	        return (arr.size() == 0);
 	    }
 	    public synchronized int size() {
 	        int count = 0;
