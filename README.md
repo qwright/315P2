@@ -37,8 +37,12 @@ Producer currently operates with a random "execution time" to produce requests o
 
 The program will exit automatically when the requests have all been fullfilled.
 
-# SAMPLE OUTPUTS
+## SAMPLE OUTPUTS
 
 C++:
 
 ![cpp](Images/cpp_output.png)
+
+Java: 
+
+![java](Images/java_output.png)
