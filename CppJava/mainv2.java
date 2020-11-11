@@ -45,6 +45,8 @@ public class mainv2{
 		while(true) {
 				Request top = request_queue.front();
 				request_queue.dequeue();
+                 	            new Thread(new mThread()).start();
+			
 				System.out.println("Consumer " + id + ": assigned Req: " + top.getID() + " for " 
 						+ top.getLength() + "s");
 				Thread.sleep(top.getLength());
