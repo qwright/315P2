@@ -46,3 +46,9 @@ C++:
 Java: 
 
 ![java](Images/java_output.png)
+
+## Group Member Contributions
+
+Quinn Wright: C++ implementation
+Jesse Plamondon & Christian Passteris: Java implementation
+Chinmmay Gopal: Debugging
