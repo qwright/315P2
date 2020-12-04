@@ -51,6 +51,6 @@ Java:
 
 Quinn Wright: C++ implementation
 
-Jesse Plamondon & Christian Passteris: Java implementation
+Jesse Plamondon & Christian Pasteris: Java implementation
 
 Chinmmay Gopal: Debugging
